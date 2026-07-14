@@ -2,11 +2,11 @@ import type { Context, Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 
 export default async (req: Request, context: Context) => {
-  const db = getDatabase();
   const url = new URL(req.url);
   const potensiId = url.searchParams.get("potensiId");
 
   try {
+    const db = getDatabase();
     if (req.method === "GET") {
       if (!potensiId) return new Response(JSON.stringify({ error: "potensiId required" }), { status: 400 });
       const rows = await db.sql`SELECT item_id, catatan FROM nota WHERE potensi_id = ${potensiId}`;
@@ -32,7 +32,9 @@ export default async (req: Request, context: Context) => {
 
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500 });
+    console.error('[nota function error]', err);
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };
 

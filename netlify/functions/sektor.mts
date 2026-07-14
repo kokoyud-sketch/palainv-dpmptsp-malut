@@ -2,8 +2,8 @@ import type { Context, Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 
 export default async (req: Request, context: Context) => {
-  const db = getDatabase();
   try {
+    const db = getDatabase();
     if (req.method === "GET") {
       const rows = await db.sql`SELECT nama FROM custom_sektor ORDER BY nama ASC`;
       return new Response(JSON.stringify(rows.map((r: any) => r.nama)), { headers: { "Content-Type": "application/json" } });
@@ -15,7 +15,9 @@ export default async (req: Request, context: Context) => {
     }
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500 });
+    console.error('[sektor function error]', err);
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };
 
