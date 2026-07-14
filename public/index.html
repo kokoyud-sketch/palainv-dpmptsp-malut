@@ -1398,15 +1398,15 @@ input, select, textarea { font-family: inherit; }
 /* DASHBOARD REDESIGN - sidebar layout inspired by reference */
 .app-topbar { display:none; }
 .app.dashboard-shell {
-  display:grid;
-  grid-template-columns:280px minmax(0,1fr);
+  display:block;
   min-height:100vh;
   background:#F5F7F8;
 }
 .app.dashboard-shell .app-sidebar {
-  position:sticky;
+  position:fixed;
   top:0;
-  grid-row:1 / span 2;
+  left:0;
+  z-index:200;
   width:280px;
   height:100vh;
   padding:22px 18px;
@@ -1417,6 +1417,15 @@ input, select, textarea { font-family: inherit; }
   color:#fff;
   border:0;
   box-shadow:none;
+  overflow-y:auto;
+  transition: transform .28s ease;
+}
+.app.dashboard-shell .main {
+  margin-left:280px;
+  min-height:100vh;
+}
+.app.dashboard-shell .app-topbar {
+  margin-left:280px;
 }
 .sidebar-brand { display:flex; align-items:center; gap:14px; cursor:pointer; }
 .sidebar-logo {
@@ -1578,9 +1587,10 @@ input, select, textarea { font-family: inherit; }
 .plant-shape { position:absolute; left:36px; bottom:35px; width:46px; height:20px; border-radius:50% 0 50% 0; background:#2F8A62; transform:rotate(-35deg); }
 .plant-shape.two { left:12px; bottom:70px; width:36px; opacity:.75; }
 .app.dashboard-shell .empty-state, .app.dashboard-shell .filter-empty { padding:42px 20px; text-align:left; }
-@media (max-width:1100px) {
-  .app.dashboard-shell { grid-template-columns:88px minmax(0,1fr); }
+@media (max-width:1100px) and (min-width:761px) {
   .app.dashboard-shell .app-sidebar { width:88px; padding:18px 12px; align-items:center; }
+  .app.dashboard-shell .main { margin-left:88px; }
+  .app.dashboard-shell .app-topbar { margin-left:88px; }
   .sidebar-brand { justify-content:center; }
   .sidebar-brand > div:not(.sidebar-logo), .side-link span:last-child, .sidebar-help, .sidebar-profile { display:none; }
   .side-link { justify-content:center; padding:0; }
@@ -1589,10 +1599,25 @@ input, select, textarea { font-family: inherit; }
 }
 @media (max-width:760px) {
   .app.dashboard-shell { display:block; }
-  .app.dashboard-shell .app-sidebar { display:none; }
-  .app.dashboard-shell .app-topbar { height:auto; padding:14px 16px; }
+  .app.dashboard-shell .app-sidebar {
+    display:flex;
+    transform: translateX(-100%) !important;
+    width: 260px;
+    box-shadow: 4px 0 24px rgba(0,0,0,.25);
+  }
+  .app.dashboard-shell.sidebar-open .app-sidebar {
+    transform: translateX(0) !important;
+  }
+  .sidebar-backdrop {
+    display:none;
+    position:fixed; inset:0; z-index:190;
+    background:rgba(0,0,0,.45);
+  }
+  .app.dashboard-shell.sidebar-open .sidebar-backdrop { display:block; }
+  .app.dashboard-shell .app-topbar { height:auto; padding:14px 16px; margin-left:0; }
+  .topbar-menu { display:inline-flex !important; }
   .topbar-user strong, .navbar-badge { display:none; }
-  .app.dashboard-shell .main { padding:18px 14px 32px; }
+  .app.dashboard-shell .main { padding:18px 14px 32px; margin-left:0; }
   .dashboard-hero { padding:28px 22px; min-height:210px; }
   .hero-ornament { display:none; }
   .app.dashboard-shell .stat-strip { grid-template-columns:1fr; }
@@ -1610,10 +1635,13 @@ input, select, textarea { font-family: inherit; }
   .app.dashboard-shell .filter-select { width:100%; }
   .dashboard-insight { display:none; }
 }
+@media (min-width:761px) {
+  .sidebar-backdrop { display:none !important; }
+}
 
-.app.dashboard-shell.sidebar-closed { grid-template-columns: 0 minmax(0,1fr) !important; }
-.app.dashboard-shell.sidebar-closed .app-sidebar { display: none !important; }
-
+.app.dashboard-shell.sidebar-closed .app-sidebar { transform: translateX(-100%); }
+.app.dashboard-shell.sidebar-closed .main,
+.app.dashboard-shell.sidebar-closed .app-topbar { margin-left:0; }
 /* DASHBOARD COMPACT SIZE OVERRIDE */
 @media (min-width: 761px) {
   .app.dashboard-shell { grid-template-columns: 244px minmax(0,1fr); }
@@ -2406,6 +2434,7 @@ input, select, textarea { font-family: inherit; }
 
 
   </nav>
+  <div class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
 
   <!-- TOPBAR -->
   <header class="app-topbar">
@@ -3564,7 +3593,12 @@ let data = [];
 async function loadData() {
   try {
     const res = await fetch('/api/potensi');
-    if (!res.ok) throw new Error('Gagal memuat data potensi');
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '(gagal baca respons)');
+      console.error('❌ loadData GAGAL — status:', res.status, '| respons server:', errText);
+      data = [];
+      return;
+    }
     const rows = await res.json();
     data = rows.map(r => ({
       id: r.id, nama: r.nama, kabupaten: r.kabupaten, sektor: r.sektor,
@@ -3572,12 +3606,13 @@ async function loadData() {
       lat: r.lat, lng: r.lng, alamat: r.alamat,
       checklist: r.checklist || {}, uploadedDocs: r.uploaded_docs || {}
     }));
-  } catch(e) { console.warn('loadData:', e); data = []; }
+    console.log('✅ loadData sukses, jumlah data:', data.length);
+  } catch(e) { console.error('❌ loadData EXCEPTION (kemungkinan /api/potensi tidak terjangkau):', e); data = []; }
 }
 
 async function saveData() {
   try {
-    await Promise.all(data.map(p => fetch('/api/potensi', {
+    const results = await Promise.all(data.map(p => fetch('/api/potensi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3587,7 +3622,14 @@ async function saveData() {
         checklist: p.checklist || {}, uploadedDocs: p.uploadedDocs || {}
       })
     })));
-  } catch(e) { console.warn('saveData:', e); }
+    for (const res of results) {
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '(gagal baca respons)');
+        console.error('❌ saveData GAGAL — status:', res.status, '| respons server:', errText);
+      }
+    }
+    if (results.every(r => r.ok)) console.log('✅ saveData sukses untuk', results.length, 'potensi');
+  } catch(e) { console.error('❌ saveData EXCEPTION (kemungkinan /api/potensi tidak terjangkau):', e); }
 }
 
 async function deletePotensiDB(id) {
@@ -3658,7 +3700,16 @@ let deleteTargetId   = null;
 
 function toggleSidebar() {
   const appShell = document.querySelector('.app.dashboard-shell');
-  if(appShell) appShell.classList.toggle('sidebar-closed');
+  if (!appShell) return;
+  if (window.innerWidth <= 760) {
+    appShell.classList.toggle('sidebar-open');
+  } else {
+    appShell.classList.toggle('sidebar-closed');
+  }
+}
+function closeMobileSidebar() {
+  const appShell = document.querySelector('.app.dashboard-shell');
+  if (appShell) appShell.classList.remove('sidebar-open');
 }
 
 function updateAboutStats() {
