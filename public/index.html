@@ -1407,7 +1407,7 @@ input, select, textarea { font-family: inherit; }
   top:0;
   left:0;
   z-index:200;
-  width:280px;
+  width:244px;
   height:100vh;
   padding:22px 18px;
   display:flex;
@@ -1421,11 +1421,11 @@ input, select, textarea { font-family: inherit; }
   transition: transform .28s ease;
 }
 .app.dashboard-shell .main {
-  margin-left:280px;
+  margin-left:244px;
   min-height:100vh;
 }
 .app.dashboard-shell .app-topbar {
-  margin-left:280px;
+  margin-left:244px;
 }
 .sidebar-brand { display:flex; align-items:center; gap:14px; cursor:pointer; }
 .sidebar-logo {
@@ -1488,22 +1488,23 @@ input, select, textarea { font-family: inherit; }
 .profile-sub { margin-top:3px; font-size:.72rem; color:rgba(255,255,255,.58); }
 .profile-caret { margin-left:auto; color:#BFEED8; }
 .app.dashboard-shell .app-topbar {
-  grid-column:2; height:76px; padding:0 32px;
+  height:76px; padding:0 32px;
   display:flex; align-items:center; justify-content:space-between;
   background:#fff; border-bottom:1px solid #E6EAED;
   box-shadow:0 1px 8px rgba(10,30,24,.05);
 }
 .topbar-menu, .topbar-actions button {
   width:38px; height:38px; border:0; background:#fff; color:#102820;
-  border-radius:8px; font-size:1.2rem;
+  border-radius:8px; font-size:1.2rem; flex-shrink:0;
 }
 .topbar-actions { display:flex; align-items:center; gap:14px; }
 .app.dashboard-shell .navbar-badge {
   background:#EAF7F1; color:#0D684F; border-color:#C8EBDD;
 }
 .app.dashboard-shell .main {
-  grid-column:2; max-width:none; width:100%; margin:0; padding:24px 32px 42px;
+  max-width:none; width:auto; margin-top:0; margin-right:0; margin-bottom:0; padding:24px 32px 42px;
   background:#F5F7F8;
+  box-sizing:border-box;
 }
 .dashboard-hero {
   position:relative; overflow:hidden; min-height:232px;
@@ -1644,8 +1645,7 @@ input, select, textarea { font-family: inherit; }
 .app.dashboard-shell.sidebar-closed .app-topbar { margin-left:0; }
 /* DASHBOARD COMPACT SIZE OVERRIDE */
 @media (min-width: 761px) {
-  .app.dashboard-shell { grid-template-columns: 244px minmax(0,1fr); }
-  .app.dashboard-shell .app-sidebar { width:244px; padding:18px 14px; gap:18px; }
+  .app.dashboard-shell .app-sidebar { padding:18px 14px; gap:18px; }
   .sidebar-logo { width:60px; height:auto; font-size:1.45rem; border-radius:0; transform:none; background:none; box-shadow:none; }
   .sidebar-name { font-size:1.32rem; }
   .sidebar-sub { font-size:.68rem; }
