@@ -1401,6 +1401,7 @@ input, select, textarea { font-family: inherit; }
   display:block;
   min-height:100vh;
   background:#F5F7F8;
+  overflow-x:hidden;
 }
 .app.dashboard-shell .app-sidebar {
   position:fixed;
@@ -1608,6 +1609,7 @@ input, select, textarea { font-family: inherit; }
   }
   .app.dashboard-shell.sidebar-open .app-sidebar {
     transform: translateX(0) !important;
+    animation: none !important;
   }
   .sidebar-backdrop {
     display:none;
@@ -1640,7 +1642,7 @@ input, select, textarea { font-family: inherit; }
   .sidebar-backdrop { display:none !important; }
 }
 
-.app.dashboard-shell.sidebar-closed .app-sidebar { transform: translateX(-100%); }
+.app.dashboard-shell.sidebar-closed .app-sidebar { transform: translateX(-100%) !important; animation: none !important; }
 .app.dashboard-shell.sidebar-closed .main,
 .app.dashboard-shell.sidebar-closed .app-topbar { margin-left:0; }
 /* DASHBOARD COMPACT SIZE OVERRIDE */
@@ -3701,6 +3703,8 @@ let deleteTargetId   = null;
 function toggleSidebar() {
   const appShell = document.querySelector('.app.dashboard-shell');
   if (!appShell) return;
+  const sb = document.querySelector('.app-sidebar');
+  if (sb && sb.getAnimations) { sb.getAnimations().forEach(a => a.cancel()); }
   if (window.innerWidth <= 760) {
     appShell.classList.toggle('sidebar-open');
   } else {
