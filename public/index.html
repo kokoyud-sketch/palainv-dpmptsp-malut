@@ -1610,6 +1610,8 @@ input, select, textarea { font-family: inherit; }
 @media (max-width:760px) {
   .wizard-step1-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
   .wizard-subgrid { grid-template-columns: 1fr !important; }
+  .wizard-checklist-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .wizard-progress-panel { position: static !important; margin-top: 4px; }
   .app.dashboard-shell { display:block; }
   .app.dashboard-shell .app-sidebar {
     display:flex;
@@ -4574,14 +4576,14 @@ function renderChecklistForm() {
       <div style="font-size:.85rem;color:var(--muted);">Lengkapi data pada setiap aspek untuk meningkatkan kesiapan investasi potensi Anda.</div>
     </div>
     
-    <div style="display:grid; grid-template-columns:2fr 1fr; gap:32px; align-items:start;">
+    <div class="wizard-checklist-grid" style="display:grid; grid-template-columns:2fr 1fr; gap:32px; align-items:start;">
       <!-- KIRI: Grid Aspek -->
       <div style="display:grid; grid-template-columns:1fr; gap:20px;">
         ${leftCardsHtml}
       </div>
       
       <!-- KANAN: Ringkasan Progress -->
-      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;position:sticky;top:20px;">
+      <div class="wizard-progress-panel" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;position:sticky;top:20px;">
         <div style="font-size:1.1rem;font-weight:800;color:var(--ink);margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:16px;">
           Ringkasan Progress
         </div>
