@@ -1599,7 +1599,17 @@ input, select, textarea { font-family: inherit; }
   .dashboard-list-grid { grid-template-columns:1fr; }
   .dashboard-insight { justify-content:center; }
 }
+.mobile-swipe-hint { display:none; }
+@media (max-width:900px) {
+  .mobile-swipe-hint {
+    display:block; font-size:.68rem; font-weight:700; color:var(--muted);
+    background:#F8FAFC; padding:6px 12px; border-bottom:1px solid var(--border);
+    text-align:center;
+  }
+}
 @media (max-width:760px) {
+  .wizard-step1-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .wizard-subgrid { grid-template-columns: 1fr !important; }
   .app.dashboard-shell { display:block; }
   .app.dashboard-shell .app-sidebar {
     display:flex;
@@ -2806,7 +2816,8 @@ input, select, textarea { font-family: inherit; }
             <h3>Daftar Potensi Investasi Terbaru</h3>
             <button class="btn-outline-sm" onclick="showPage('about')">Lihat Semua</button>
           </div>
-          <div class="widget-body" style="overflow-x:auto; padding:0;">
+          <div class="widget-body" style="overflow-x:auto; padding:0; -webkit-overflow-scrolling:touch;">
+            <div class="mobile-swipe-hint">↔ Geser untuk lihat kolom lainnya</div>
             <table class="dash-table">
               <thead>
                 <tr>
@@ -2861,14 +2872,14 @@ input, select, textarea { font-family: inherit; }
         </div>
 
         <div class="wizard-tab active" id="wizardTab1">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+          <div class="wizard-step1-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
             <!-- LEFT -->
             <div>
               <div class="form-group full" style="margin-bottom:16px;">
                 <label class="form-label">Nama Potensi Investasi <span class="req">*</span></label>
                 <input id="f-nama" class="form-input" placeholder="cth: Kawasan Wisata Bahari Ternate Selatan" />
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+              <div class="wizard-subgrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
                 <div class="form-group">
                   <label class="form-label">Kabupaten / Kota <span class="req">*</span></label>
                   <select id="f-kab" class="form-select" onchange="flyToKab(this.value)">
@@ -3090,7 +3101,8 @@ input, select, textarea { font-family: inherit; }
           <span style="font-size:.82rem;font-weight:700;color:var(--ink);">Tabel Data Lengkap (Miliar Rp)</span>
           <button onclick="exportReiExcel()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--font);">📥 Export Excel</button>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <div class="mobile-swipe-hint">↔ Geser untuk lihat data tahun lainnya</div>
           <table id="reiMainTable" style="width:100%;border-collapse:collapse;min-width:700px;"></table>
         </div>
       </div>
